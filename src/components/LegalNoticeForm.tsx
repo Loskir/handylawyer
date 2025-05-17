@@ -6,23 +6,24 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
+import { Label } from "@/components/ui/label";
+import { Loader2 } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 
 interface LegalNoticeFormProps {
   onSubmit: (data: { country: string; problem: string }) => void;
+  isLoading?: boolean;
 }
 
-export const LegalNoticeForm = ({ onSubmit }: LegalNoticeFormProps) => {
+export const LegalNoticeForm = ({ onSubmit, isLoading = false }: LegalNoticeFormProps) => {
+  const [country, setCountry] = useState("Netherlands");
   const [problem, setProblem] = useState('');
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    onSubmit({
-      country: 'Netherlands',
-      problem,
-    });
+    onSubmit({ country, problem });
   };
 
   return (
@@ -39,13 +40,12 @@ export const LegalNoticeForm = ({ onSubmit }: LegalNoticeFormProps) => {
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             <div className="space-y-2">
-              <label
-                htmlFor="country"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
+              <Label htmlFor="country">Country</Label>
+              <Select
+                value={country}
+                onValueChange={setCountry}
+                disabled={isLoading}
               >
-                Country
-              </label>
-              <Select defaultValue="Netherlands">
                 <SelectTrigger className="w-full">
                   <SelectValue placeholder="Select a country" />
                 </SelectTrigger>
@@ -75,19 +75,14 @@ export const LegalNoticeForm = ({ onSubmit }: LegalNoticeFormProps) => {
             </div>
 
             <div className="space-y-2">
-              <label
-                htmlFor="problem"
-                className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70"
-              >
-                Describe your legal problem
-              </label>
+              <Label htmlFor="problem">Describe Your Problem</Label>
               <Textarea
                 id="problem"
                 placeholder="Please describe your legal situation in detail..."
                 value={problem}
                 onChange={(e) => setProblem(e.target.value)}
+                disabled={isLoading}
                 required
-                className="min-h-[150px] resize-none transition-all duration-200 focus:ring-2"
               />
               <p className="text-sm text-muted-foreground">
                 Be as specific as possible to get the most accurate legal notice.
@@ -98,8 +93,16 @@ export const LegalNoticeForm = ({ onSubmit }: LegalNoticeFormProps) => {
               type="submit"
               className="w-full transition-all duration-200 hover:scale-[1.02]"
               size="lg"
+              disabled={isLoading}
             >
-              Generate Legal Notice
+              {isLoading ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Generating...
+                </>
+              ) : (
+                "Generate Legal Notice"
+              )}
             </Button>
           </form>
         </CardContent>

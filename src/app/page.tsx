@@ -1,15 +1,65 @@
 'use client';
 
+import { useState } from 'react';
 import { Hero } from '@/components/Hero';
 import { LegalNoticeForm } from '@/components/LegalNoticeForm';
+import { LegalNoticeResponse } from '@/components/LegalNoticeResponse';
 import { Card, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Brain, Zap, Shield } from "lucide-react";
 import { AnimateOnScroll } from '@/components/AnimateOnScroll';
 
+// Mock API call
+const mockGenerateLegalNotice = async (data: { country: string; problem: string }) => {
+  // Simulate API delay
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
+  // Randomly return success or insufficient data for testing
+  if (Math.random() > 0.5) {
+    return {
+      status: 'success' as const,
+      message: 'Legal notice generated successfully',
+      data: {
+        notice: `LEGAL NOTICE
+
+To Whom It May Concern:
+
+This notice is being sent in accordance with the laws of ${data.country}.
+
+RE: ${data.problem}
+
+We hereby demand that you take immediate action to address the above-mentioned matter. Failure to respond within 14 days may result in further legal action.
+
+Sincerely,
+[Your Name]`,
+        generatedAt: new Date().toLocaleString()
+      }
+    };
+  }
+
+  return {
+    status: 'insufficient_data' as const,
+    message: 'Please provide more specific details about your situation, including dates, amounts, and any relevant documentation.'
+  };
+};
+
 export default function Home() {
-  const handleSubmit = (data: { country: string; problem: string }) => {
-    // TODO: Implement the actual legal notice generation
-    console.log('Form submitted:', data);
+  const [isLoading, setIsLoading] = useState(false);
+  const [response, setResponse] = useState<Awaited<ReturnType<typeof mockGenerateLegalNotice>> | null>(null);
+
+  const handleSubmit = async (data: { country: string; problem: string }) => {
+    setIsLoading(true);
+    try {
+      const result = await mockGenerateLegalNotice(data);
+      setResponse(result);
+    } catch (error) {
+      console.error('Error generating legal notice:', error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleRetry = () => {
+    setResponse(null);
   };
 
   return (
@@ -88,9 +138,16 @@ export default function Home() {
               </p>
             </AnimateOnScroll>
           </div>
-          <AnimateOnScroll delay={300}>
-            <LegalNoticeForm onSubmit={handleSubmit} />
-          </AnimateOnScroll>
+          <div className="space-y-8">
+            <AnimateOnScroll delay={300}>
+              <LegalNoticeForm onSubmit={handleSubmit} isLoading={isLoading} />
+            </AnimateOnScroll>
+            {response && (
+              <AnimateOnScroll delay={400}>
+                <LegalNoticeResponse response={response} onRetry={handleRetry} />
+              </AnimateOnScroll>
+            )}
+          </div>
         </div>
       </section>
 
