@@ -1,5 +1,6 @@
 import { Button } from "@/components/ui/button";
 import { Shield, Zap, Clock } from "lucide-react";
+import Link from "next/link";
 
 export const Hero = () => {
   return (
@@ -18,13 +19,13 @@ export const Hero = () => {
           
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center [animation:slideUp_0.5s_ease-out_0.6s_both]">
             <Button
-              asChild
               size="lg"
               className="rounded-full px-8 text-base"
+              asChild
             >
-              <a href="#form">
+              <Link href="/generator">
                 Get Started
-              </a>
+              </Link>
             </Button>
             <Button
               asChild
